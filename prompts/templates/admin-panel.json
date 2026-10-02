@@ -1,0 +1,18 @@
+{
+  "name": "Admin Panel",
+  "description": "Full admin dashboard with data tables, charts, settings, and user management",
+  "frontend": [
+    { "name": "01_header.txt", "content": "Create an admin panel header with logo, breadcrumbs, notifications bell, user menu. Include a dark sidebar toggle button." },
+    { "name": "02_sidebar.txt", "content": "Create a dark sidebar with: Overview, Users, Roles, Content, Analytics, Reports, Settings. Highlight the active item." },
+    { "name": "03_data_table.txt", "content": "Create a fully-featured data table with server-side pagination, sorting, search/filter, row selection checkboxes, and action buttons (Edit/Delete). Use vanilla JS." },
+    { "name": "04_charts.txt", "content": "Create 3 chart cards using Chart.js: User Growth (line), Revenue by Category (doughnut), Activity Overview (bar). Each in its own card with a title." },
+    { "name": "05_user_form.txt", "content": "Create a modal user form with fields: Name, Email, Role (dropdown), Status (toggle), Avatar upload. Include form validation and a preview." },
+    { "name": "06_footer.txt", "content": "Create a footer with pagination info, action buttons (Delete Selected, Export), and a timestamp." }
+  ],
+  "backend": [
+    { "name": "01_server.txt", "content": "Create an Express.js server with express-validator, CORS, and helmet. Add routes: /api/users, /api/roles, /api/content, /api/analytics." },
+    { "name": "02_database.txt", "content": "Create a PostgreSQL/MySQL schema for admin panel: users, roles, permissions, content, audit_logs. Include role-based access control tables." },
+    { "name": "03_routes.txt", "content": "Create REST API routes for users: GET /api/users (with pagination+search), POST /api/users, PUT /api/users/:id, DELETE /api/users/:id. Include role assignment sub-routes." },
+    { "name": "04_auth.txt", "content": "Add JWT-based RBAC auth: login, register, role-check middleware. Generate tokens with 7-day expiry. Include refresh token endpoint." }
+  ]
+}

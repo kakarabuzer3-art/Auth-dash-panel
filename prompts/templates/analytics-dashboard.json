@@ -1,0 +1,19 @@
+{
+  "name": "Analytics Dashboard",
+  "description": "Data visualization, KPI tracking, and interactive charts",
+  "frontend": [
+    { "name": "01_header.txt", "content": "Create an analytics dashboard header with a date range picker (Last 7/30/90 days), export buttons (CSV/PDF), and a theme toggle." },
+    { "name": "02_sidebar.txt", "content": "Create a sidebar with: Overview, Metrics, Funnels, Cohorts, Reports, Export. Use a minimal design with subtle icons." },
+    { "name": "03_kpi_grid.txt", "content": "Create 6 KPI cards in a responsive grid: Sessions, Users, Bounce Rate, Conversion Rate, Revenue, Avg. Session Duration. Each card shows current value, previous period change, and a small sparkline." },
+    { "name": "04_main_chart.txt", "content": "Create a large area chart showing traffic over time with a selectable metric. Include a secondary Y-axis for conversion rate. Use Chart.js with zoom/pan." },
+    { "name": "05_geo_chart.txt", "content": "Create a world map visualization with traffic by country. Use simple color shading. Click a country to drill down." },
+    { "name": "06_funnel.txt", "content": "Create a multi-step funnel visualization: Landing → Signup → Onboarding → Purchase → Retention. Show drop-off percentages between each stage." },
+    { "name": "07_footer.txt", "content": "Create a footer with data source attribution, last-updated timestamp, and a 'Download Report' button." }
+  ],
+  "backend": [
+    { "name": "01_server.txt", "content": "Create an Express.js server with data aggregation endpoints: /api/analytics/sessions, /api/analytics/conversion, /api/analytics/funnel. Use dayjs for date handling." },
+    { "name": "02_database.txt", "content": "Create a time-series-friendly schema: events table (user_id, event_type, timestamp, properties JSON), users table, sessions table. Include indexes for time-based queries." },
+    { "name": "03_routes.txt", "content": "Create analytics API routes: POST /api/events (ingest), GET /api/analytics/overview (KPI summary), GET /api/analytics/timeseries (date-bucketed aggregation with filters)." },
+    { "name": "04_cache.txt", "content": "Add Redis caching layer for expensive aggregation queries. Cache key: 'analytics:<metric>:<dateRange>'. TTL: 5 minutes. Invalidate on new event ingestion in the same period." }
+  ]
+}

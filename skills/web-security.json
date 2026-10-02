@@ -1,0 +1,13 @@
+{
+  "id": "web-security",
+  "name": "Web Application Security",
+  "category": "engineering",
+  "description": "OWASP-minded hardening for a project that really has accounts or a database. Opt-in: it is NOT applied unless you switch it on, so it can never add a login screen to a task that did not ask for one.",
+  "priority": 40,
+  "targets": [
+    "chat",
+    "automation"
+  ],
+  "enabledByDefault": false,
+  "prompt": "SECURITY RULES - apply these ONLY to a project the task actually gives accounts, authentication, or a database. If the requested deliverable has no accounts and no database, ignore every line below and build exactly what was asked: never introduce a login page, a password field, a session, a role, a schema or an auth screen just to satisfy this rule.\nDatabase: prepared statements with bound parameters ONLY (PDO/mysqli) - never string-concatenated SQL, not even for \"internal\" ids.\nPasswords: password_hash() with PASSWORD_DEFAULT, password_verify() for checks; never store, log or return a plaintext or reversibly-encrypted password.\nSessions: session_regenerate_id(true) after login and privilege change, HttpOnly + SameSite cookies, logout destroys the session, and every privileged API action re-checks the session server-side.\nInput/output: validate on the server (allow-list, types, lengths), escape on output (htmlspecialchars with ENT_QUOTES for HTML, prepared binds for SQL, JSON-encode for JSON). Never trust the client.\nCSRF: a per-session token verified on every state-changing request (POST/PUT/DELETE), including AJAX calls.\nAuthorisation: check role/ownership per record, not just \"is logged in\" - an id from the client must never grant access to another user's row.\nSecrets: read them from environment/config files that are git-ignored; never inline an API key, DB password or token in client-side JavaScript.\nErrors: log details server-side, return a generic message plus a code to the client - stack traces, SQL and file paths must never reach the browser.\nAdd sensible rate limiting / lockout for login and other abuse-prone endpoints - but only for a login that exists because the task asked for one."
+}

@@ -1,0 +1,18 @@
+{
+  "name": "CRM System",
+  "description": "Customer relationship management with pipeline, activities, and reporting",
+  "frontend": [
+    { "name": "01_header.txt", "content": "Create a CRM header with: app logo, global search (contacts/companies/deals), quick-add button (dropdown: Contact, Company, Deal, Activity), and user profile menu." },
+    { "name": "02_sidebar.txt", "content": "Create a CRM sidebar with: Dashboard, Leads, Contacts, Companies, Deals, Activities, Reports, Settings. Use appropriate icons and show unread counts where relevant." },
+    { "name": "03_pipeline.txt", "content": "Create a Kanban-style deal pipeline with columns: Lead → Qualified → Proposal → Negotiation → Closed Won/Lost. Each card shows: deal name, company, value, close date. Draggable between columns." },
+    { "name": "04_contact_list.txt", "content": "Create a contacts table with columns: Name (with avatar), Email, Phone, Company, Status, Last Contacted. Include a filter toolbar (status, company) and a 'New Contact' button." },
+    { "name": "05_activity_feed.txt", "content": "Create an activity feed timeline: calls, emails, meetings, tasks. Each item shows: type (with icon/color), related contact/company, notes, timestamp, and completion status." },
+    { "name": "06_footer.txt", "content": "Create a CRM footer with sync status (Last synced: timestamp), offline indicator, and a mini-statistics bar (total deals, won, lost this month)." }
+  ],
+  "backend": [
+    { "name": "01_server.txt", "content": "Create an Express.js CRM server with routes: /api/contacts, /api/companies, /api/deals, /api/activities. Include pagination and field selection support." },
+    { "name": "02_database.txt", "content": "Create a CRM database schema: contacts, companies, deals, activities, users, notes. Contacts belong to companies. Deals link to contacts/companies. Activities are polymorphic (belong to contacts/companies/deals). Include timestamps and created_by." },
+    { "name": "03_routes.txt", "content": "Create REST API routes for deals: GET /api/deals (with pipeline filter, pagination), POST /api/deals, PUT /api/deals/:id/move-stage, GET /api/deals/pipeline-summary. Include related contact/company nesting." },
+    { "name": "04_tasks.txt", "content": "Add a task/activity scheduling system: POST /api/activities (create), GET /api/activities/upcoming (next 7 days with reminders), PUT /api/activities/:id/log (mark completed with notes). Include email/SMS reminder webhook stub." }
+  ]
+}

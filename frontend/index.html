@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUB-Dashboard | SUB-Project Control Panel</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui/1.13.2/jquery-ui.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading SUB-Dashboard...</div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content login-modal">
+            <div class="login-header">
+                <h1><i class="fas fa-lock"></i> Secure Login</h1>
+                <p class="subtitle">SUB-Project Dashboard Access</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Enter username" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-key"></i> Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Enter password" autocomplete="current-password">
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <a href="#" class="forgot-password">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div id="loginError" class="error-message" style="display:none;"></div>
+            </form>
+            <div class="login-footer">
+                <p><small>Default: admin / admin123</small></p>
+                <p class="version">v1.0.0 | SUB-Project</p>
+            </div>
+        </div>
+    </div>
+
+
+            <!-- DASHBOARD PAGE -->
+            <div id="page-dashboard" class="page">
+                <div class="page-header"><h1><i class="fas fa-th-large"></i> Dashboard</h1><div class="page-actions"><button class="btn btn-secondary" onclick="refreshDashboard()"><i class="fas fa-sync-alt"></i> Refresh</button></div></div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon blue"><i class="fas fa-users"></i></div><div class="stat-info"><span class="stat-label">Total Users</span><span class="stat-value" id="stat-users">0</span><span class="stat-change positive">Active</span></div></div>
+                    <div class="stat-card"><div class="stat-icon green"><i class="fas fa-box"></i></div><div class="stat-info"><span class="stat-label">Products</span><span class="stat-value" id="stat-products">0</span><span class="stat-change">In Stock</span></div></div>
+                    <div class="stat-card"><div class="stat-icon orange"><i class="fas fa-receipt"></i></div><div class="stat-info"><span class="stat-label">Total Sales</span><span class="stat-value" id="stat-sales">0</span><span class="stat-change positive">Completed</span></div></div>
+                    <div class="stat-card"><div class="stat-icon purple"><i class="fas fa-chart-line"></i></div><div class="stat-info"><span class="stat-label">Revenue</span><span class="stat-value" id="stat-revenue">Rs. 0.00</span><span class="stat-change positive">Total</span></div></div>
+                    <div class="stat-card"><div class="stat-icon red"><i class="fas fa-warehouse"></i></div><div class="stat-info"><span class="stat-label">Stock Value</span><span class="stat-value" id="stat-stock">Rs. 0.00</span><span class="stat-change">Inventory</span></div></div>
+                    <div class="stat-card"><div class="stat-icon teal"><i class="fas fa-handshake"></i></div><div class="stat-info"><span class="stat-label">Partners</span><span class="stat-value" id="stat-partners">0</span><span class="stat-change">Active</span></div></div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="card chart-card"><div class="card-header"><h3><i class="fas fa-chart-bar"></i> Sales Overview</h3></div><div class="card-body"><canvas id="salesChart"></canvas></div></div>
+                    <div class="card"><div class="card-header"><h3><i class="fas fa-clock"></i> Recent Activity</h3><a href="#" class="view-all">View All</a></div><div class="card-body"><div class="activity-list" id="recentActivity"><div class="activity-item"><div class="activity-icon success"><i class="fas fa-check"></i></div><div class="activity-content"><p class="activity-title">System initialized</p><span class="activity-time">Just now</span></div></div></div></div></div>
+                </div>
+            </div>
+
+            <!-- PRODUCTS PAGE -->
+            <div id="page-products" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-box"></i> Products</h1><div class="page-actions"><button class="btn btn-secondary" onclick="exportProducts()"><i class="fas fa-download"></i> Export</button><button class="btn btn-primary" onclick="openProductModal()"><i class="fas fa-plus"></i> Add Product</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="productsTable"><thead><tr><th>ID</th><th>Product Name</th><th>SKU</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+            </div>
+
+            <!-- SALES PAGE -->
+            <div id="page-sales" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-receipt"></i> Sales</h1><div class="page-actions"><button class="btn btn-secondary" onclick="exportSales()"><i class="fas fa-download"></i> Export</button><button class="btn btn-primary" onclick="createNewSale()"><i class="fas fa-plus"></i> New Sale</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="salesTable"><thead><tr><th>Invoice</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+
+            <!-- STOCK PAGE -->
+            <div id="page-stock" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-warehouse"></i> Stock Management</h1><div class="page-actions"><button class="btn btn-secondary" onclick="adjustStock()"><i class="fas fa-adjust"></i> Adjust</button><button class="btn btn-primary" onclick="addStock()"><i class="fas fa-plus"></i> Add Stock</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="stockTable"><thead><tr><th>Product</th><th>Current Stock</th><th>Min Stock</th><th>Status</th><th>Last Updated</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+            </div>
+
+            <!-- PARTNERS PAGE -->
+            <div id="page-partners" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-handshake"></i> Partners / Investors</h1><div class="page-actions"><button class="btn btn-primary" onclick="openPartnerModal()"><i class="fas fa-plus"></i> Add Partner</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="partnersTable"><thead><tr><th>ID</th><th>Partner Name</th><th>Investment</th><th>Share %</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+                <div class="card mt-3"><div class="card-header"><h3><i class="fas fa-calculator"></i> Profit Distribution Calculator</h3></div><div class="card-body">
+                    <div class="form-group"><label>Total Profit (Rs.)</label><input type="number" id="profitAmount" class="form-control" placeholder="Enter profit amount"></div>
+                    <button class="btn btn-primary" onclick="calculateProfitDistribution()"><i class="fas fa-calculator"></i> Calculate</button>
+                    <div id="profitDistributionResult" class="distribution-result mt-3" style="display:none;"><h4>Distribution Breakdown:</h4><div id="distributionList"></div></div>
+                </div></div>
+            </div>
+
+            <!-- PROFIT/LOSS PAGE -->
+            <div id="page-profit" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-chart-line"></i> Profit & Loss</h1><div class="page-actions"><button class="btn btn-primary" onclick="recordProfitLoss()"><i class="fas fa-plus"></i> Record</button></div></div>
+
+            <!-- USERS PAGE -->
+            <div id="page-users" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-user-cog"></i> Users</h1><div class="page-actions"><button class="btn btn-primary" onclick="openUserModal()"><i class="fas fa-plus"></i> Add User</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="usersTable"><thead><tr><th>ID</th><th>Username</th><th>Full Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+            </div>
+
+            <!-- REPORTS PAGE -->
+            <div id="page-reports" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-file-alt"></i> Reports</h1></div>
+                <div class="reports-grid">
+                    <div class="card report-card"><div class="card-body text-center"><i class="fas fa-receipt fa-3x"></i><h3>Sales Report</h3><p>Detailed sales analysis</p><button class="btn btn-secondary">Generate</button></div></div>
+                    <div class="card report-card"><div class="card-body text-center"><i class="fas fa-box fa-3x"></i><h3>Inventory Report</h3><p>Stock levels tracking</p><button class="btn btn-secondary">Generate</button></div></div>
+                    <div class="card report-card"><div class="card-body text-center"><i class="fas fa-chart-line fa-3x"></i><h3>Profit Report</h3><p>Financial overview</p><button class="btn btn-secondary">Generate</button></div></div>
+                    <div class="card report-card"><div class="card-body text-center"><i class="fas fa-handshake fa-3x"></i><h3>Partner Report</h3><p>Investment summary</p><button class="btn btn-secondary">Generate</button></div></div>
+                </div>
+            </div>
+
+            <!-- EXPENSES PAGE -->
+            <div id="page-expenditures" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-shopping-cart"></i> Expenses</h1><div class="page-actions"><button class="btn btn-primary" onclick="openExpenseModal()"><i class="fas fa-plus"></i> Add Expense</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="expensesTable"><thead><tr><th>ID</th><th>Category</th><th>Description</th><th>Amount</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications Panel -->
+    <div id="notificationsPanel" class="notifications-panel" style="display:none;">
+        <div class="notifications-header"><h3><i class="fas fa-bell"></i> Notifications</h3><button class="close-btn" onclick="toggleNotifications()"><i class="fas fa-times"></i></button></div>
+        <div class="notifications-body" id="notificationsList"></div>
+    </div>
+
+    <!-- Toasts Container -->
+    <div class="toasts-container" id="toastsContainer"></div>
+
+    <!-- Footer -->
+    <footer class="app-footer" style="display:none;">
+        <div class="footer-content"><span>&copy; 2024 SUB-Project. All rights reserved.</span><span class="footer-version">Version 1.0.0</span></div>
+    </footer>
+</body>
+</html>
+
+                <div class="dashboard-grid">
+                    <div class="card"><div class="card-header"><h3><i class="fas fa-plus"></i> Record Profit/Loss</h3></div><div class="card-body">
+                        <div class="form-group"><label>Date</label><input type="date" id="plDate" class="form-control"></div>
+                        <div class="form-group"><label>Description</label><textarea id="plDescription" class="form-control" rows="3" placeholder="Enter description"></textarea></div>
+                        <div class="form-row"><div class="form-group"><label>Profit (Rs.)</label><input type="number" id="plProfit" class="form-control" step="0.01"></div><div class="form-group"><label>Loss (Rs.)</label><input type="number" id="plLoss" class="form-control" step="0.01"></div></div>
+                        <button class="btn btn-primary" onclick="saveProfitLoss()"><i class="fas fa-save"></i> Save Record</button>
+                    </div></div>
+                    <div class="card"><div class="card-header"><h3><i class="fas fa-history"></i> Records</h3></div><div class="card-body"><div class="table-responsive"><table class="data-table" id="profitRecordsTable"><thead><tr><th>Date</th><th>Profit</th><th>Loss</th><th>Net</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+                </div>
+            </div>
+
+            </div>
+
+            <!-- CUSTOMERS PAGE -->
+            <div id="page-customers" class="page" style="display:none;">
+                <div class="page-header"><h1><i class="fas fa-users"></i> Customers</h1><div class="page-actions"><button class="btn btn-primary" onclick="openCustomerModal()"><i class="fas fa-plus"></i> Add Customer</button></div></div>
+                <div class="card"><div class="card-body"><div class="table-responsive"><table class="data-table" id="customersTable"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table></div></div></div>
+            </div>

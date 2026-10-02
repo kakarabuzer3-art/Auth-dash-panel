@@ -1,0 +1,18 @@
+{
+  "name": "E-commerce Dashboard",
+  "description": "Sales analytics, order management, product catalog, and customer insights",
+  "frontend": [
+    { "name": "01_header.txt", "content": "Create a modern e-commerce header with logo, search bar, cart icon (with badge), user avatar dropdown. Include a dark mode toggle. Use Tailwind CSS classes." },
+    { "name": "02_sidebar.txt", "content": "Create a collapsible sidebar with navigation: Dashboard, Orders, Products, Customers, Analytics, Settings. Use icons from Font Awesome." },
+    { "name": "03_sales_chart.txt", "content": "Create a sales analytics card with a line chart showing daily revenue for the last 30 days. Use Chart.js. Include total revenue, growth percentage, and order count." },
+    { "name": "04_stat_cards.txt", "content": "Create 4 stat cards: Total Revenue, Total Orders, Conversion Rate, Average Order Value. Each card has an icon, main number, and trend indicator (up/down arrow)." },
+    { "name": "05_recent_orders.txt", "content": "Create a recent orders table with columns: Order ID, Customer, Date, Status, Amount. Include a filter dropdown and pagination." },
+    { "name": "06_footer.txt", "content": "Create a footer with copyright, quick links, and social media icons. Keep it minimal and clean." }
+  ],
+  "backend": [
+    { "name": "01_server.txt", "content": "Create an Express.js server with CORS, body-parser, and routes for /api/orders, /api/products, /api/analytics. Use port 3000." },
+    { "name": "02_database.txt", "content": "Create a SQLite database schema for e-commerce: users, products, orders, order_items tables. Include foreign keys and indexes." },
+    { "name": "03_routes.txt", "content": "Create REST API routes for orders: GET /api/orders (list with pagination), POST /api/orders (create), GET /api/orders/:id (single), PUT /api/orders/:id/update-status." },
+    { "name": "04_auth.txt", "content": "Add JWT authentication middleware. Login route POST /api/auth/login (validates against users table). Protect /api/orders with auth middleware." }
+  ]
+}

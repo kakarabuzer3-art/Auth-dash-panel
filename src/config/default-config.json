@@ -1,0 +1,91 @@
+{
+  "scheduler": {
+    "enabled": false,
+    "time": "19:00",
+    "daysOff": ["Sunday"]
+  },
+  "apiKeys": {
+    "gemini": "",
+    "kimi": "",
+    "groq": ""
+  },
+  "providers": {
+    "gemini":     { "apiKey": "", "model": "gemini-3.6-flash", "priority": 1, "enabled": true,
+                    "apiKeys": [],
+                    "thinkingLevel": "medium", "temperature": 0.7, "maxTokens": 8192,
+                    "latencyMs": 400, "costPerMillionInput": 150, "costPerMillionOutput": 600 },
+        "groq":       { "apiKey": "", "model": "openai/gpt-oss-120b", "priority": 2, "enabled": true,
+                    "temperature": 0.7, "maxTokens": 8192,
+                    "latencyMs": 250, "costPerMillionInput": 5, "costPerMillionOutput": 10 },
+    "kimi":       { "apiKey": "", "model": "moonshot-v1-8k", "priority": 3, "enabled": true,
+                    "temperature": 0.7, "maxTokens": 8192,
+                    "latencyMs": 600, "costPerMillionInput": 250, "costPerMillionOutput": 1250 },
+    "openrouter": { "apiKey": "", "model": "auto", "priority": 4, "enabled": true,
+                    "temperature": 0.7, "maxTokens": 8192,
+                    "latencyMs": 700, "costPerMillionInput": 500, "costPerMillionOutput": 1500 }
+  },
+  "routing": {
+    "strategy": "priority",
+    "fallback": true,
+    "maxRetries": 2,
+    "roundRobinIndex": 0
+  },
+      "aiConfig": {
+        "systemPrompt": "You are an expert full-stack engineer AND a senior white-hat SEO consultant (15+ years). HONESTY IS YOUR TOP RULE: never invent facts, statistics, clients, prices, URLs, API endpoints or version numbers; label assumptions as [assumption] and unknowns as [unknown]; say 'I cannot verify this' instead of guessing. Plan before you write, satisfy every rule in the ACTIVE SKILLS block of this system prompt, and make all code production-ready with real validation, error handling and no placeholders. Optimise everything you produce for search intent, E-E-A-T and Core Web Vitals. Return ONLY the code with no explanations, no markdown fences, no preamble. If multiple files are needed, separate them with a line containing exactly '--- FILE: <path> ---' and close each file with '--- END FILE ---'.",
+        "maxOutputTokens": 8192,
+        "temperature": 0.7,
+        "designStyle": "auto",
+        "promptScope": { "chat": true, "automation": true },
+        "skills": { "enabled": {} }
+    },
+    "vscodeAutomation": {
+    "executablePath": "code",
+    "aiExtension": "cline",
+    "backgroundMode": true,
+    "reuseWindow": true,
+    "extensions": {
+      "cline": {
+        "id": "saoudrizwan.claude-dev",
+        "openShortcut": "ctrl+shift+p"
+      },
+      "continue": {
+        "id": "Continue.continue",
+        "openShortcut": "ctrl+m"
+      }
+    },
+        "typingSpeedMs": 50,
+    "waitBetweenPromptsSec": 30,
+        "waitAfterLaunchSec": 5
+  },
+  "fileConfig": {
+    "outputDirectory": "~/Desktop/Dashboard",
+    "backupBeforeOverwrite": true,
+    "promptFilePath": "~/Desktop/prompts.txt",
+    "promptsDirectory": "",
+    "promptDelaySec": 3,
+    "xamppRoot": "",
+    "xamppAutoDeploy": true,
+    "xamppAutoStart": true,
+    "xamppImportSchema": true
+  },
+    "appConfig": {
+    "minimizeToTray": true,
+    "closeToTray": true,
+    "silentNotifications": true,
+    "startWithWindows": false
+  },
+  "mcpServers": {
+    "enabled": true,
+    "autoConnect": true,
+    "maxServers": 5,
+    "callTimeoutMs": 30000,
+    "servers": []
+  },
+  "logsConfig": {
+    "terminalMaxLines": 5000,
+    "errorRetentionDays": 30,
+    "autoScroll": true,
+    "showTimestamps": true,
+    "errorCenterEnabled": true
+  }
+}

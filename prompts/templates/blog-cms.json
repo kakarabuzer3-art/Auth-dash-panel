@@ -1,0 +1,19 @@
+{
+  "name": "Blog/CMS Dashboard",
+  "description": "Content management with publishing workflow, drafts, and analytics",
+  "frontend": [
+    { "name": "01_header.txt", "content": "Create a CMS header with: site logo, live preview toggle, save/draft/publish buttons, user avatar. Include breadcrumb navigation showing current location." },
+    { "name": "02_sidebar.txt", "content": "Create a CMS sidebar with: Dashboard, Posts, Categories, Tags, Media, Comments, Analytics, Settings. Show pending comment count badge." },
+    { "name": "03_post_editor.txt", "content": "Create a full post editor with: title input, Markdown editor (with live preview toggle), featured image uploader, category/tags multi-select, excerpt textarea, status dropdown (Draft/Pending/ Published), and SEO meta fields (title, description, slug)." },
+    { "name": "04_post_list.txt", "content": "Create a posts management table: Title (with status badge), Author, Category, Published Date, Status, View Count, and Edit/Delete actions. Include bulk actions (publish/draft/delete) and search." },
+    { "name": "05_dashboard_cards.txt", "content": "Create 4 dashboard stat cards: Total Posts, Published, Drafts, Pending Review. Each card includes an icon, count, and month-over-month change indicator." },
+    { "name": "06_analytics.txt", "content": "Create a simple analytics section: page views chart (line, last 30 days), top posts list (with view counts), and a world map of visitors. Use Chart.js for charts." },
+    { "name": "07_footer.txt", "content": "Create a CMS footer with version info, auto-save indicator, and a 'Help' button that links to documentation." }
+  ],
+  "backend": [
+    { "name": "01_server.txt", "content": "Create an Express.js CMS server with routes: /api/posts, /api/categories, /api/tags, /api/comments, /api/auth. Include image upload middleware (multer) and Markdown processing." },
+    { "name": "02_database.txt", "content": "Create a blog/CMS database schema: posts (title, slug, content, excerpt, status, featured_image, author_id, category_id, published_at, created_at, updated_at), categories, tags, post_tags (pivot), comments, users. Include full-text search index on posts." },
+    { "name": "03_routes.txt", "content": "Create REST API routes for posts: GET /api/posts (with pagination, category/tag filters, status filter for drafts), POST /api/posts (create), PUT /api/posts/:id (update), DELETE /api/posts/:id. Add GET /api/posts/:slug for public view and GET /api/posts/:id/revisions." },
+    { "name": "04_auth.txt", "content": "Add JWT-based CMS authentication: POST /api/auth/login, POST /api/auth/register (admin role only), role-based middleware (admin/editor/author). Include password hashing with bcrypt, 2FA setup stub, and a session refresh endpoint." }
+  ]
+}

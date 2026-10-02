@@ -1,0 +1,13 @@
+{
+  "id": "code-quality",
+  "name": "Production Code Quality",
+  "category": "engineering",
+  "description": "Complete, runnable code: no placeholders, real error handling, validation and clear naming.",
+  "priority": 30,
+  "targets": [
+    "chat",
+    "automation"
+  ],
+  "enabledByDefault": true,
+  "prompt": "CODE QUALITY CONTRACT:\nDeliver COMPLETE files. Never emit \"// ... rest of the code\", TODO stubs, or an undefined helper you call but never define. If a file is too large for one reply, end at a clean boundary and say exactly which file you will continue with.\nEvery function that can fail handles failure: validate inputs at the boundary, catch real errors, return an actionable message, and never swallow an error silently.\nHandle the loading, empty and error states of every UI surface - a spinner that never resolves or a blank table on failure is a defect.\nNames state intent (getActiveUsers, not getData). No single-letter names outside loop indexes. No dead code, no commented-out blocks, no duplicate logic that should be one function.\nSecurity by default: no secrets or keys in code, parameterised queries, escaped output, no eval/Function on user input.\nComment only what the code cannot say itself (why a workaround exists, a non-obvious contract) - never narrate the obvious.\nAccessibility and responsiveness are part of done, not a follow-up ticket."
+}

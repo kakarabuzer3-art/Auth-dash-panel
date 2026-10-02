@@ -1,0 +1,174 @@
+/* ============================================================
+   AutoDash UI — 2026 design system
+   Dark-first · token-based colors · single accent · status hues
+   Bootstrap owns base styles; Tailwind provides utilities only
+   (preflight skipped to avoid conflicts with Bootstrap Reboot).
+   ============================================================ */
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+@theme {
+  /* Surfaces (dark-first, near-black) */
+  --color-bg: #0a0a10;
+  --color-bg-soft: #10101a;
+  --color-card: #14141f;
+  --color-card-hover: #1a1a28;
+  --color-border: #23233a;
+  --color-border-soft: #1c1c2e;
+
+  /* Single accent — indigo/violet (brand) */
+  --color-accent: #7c6cff;
+  --color-accent-soft: #9d8fff;
+  --color-accent-dim: rgba(124, 108, 255, 0.14);
+
+  /* Status hues (color reserved for meaning, not decoration) */
+  --color-ok: #34d399;
+  --color-warn: #fbbf24;
+  --color-err: #f87171;
+  --color-info: #60a5fa;
+
+  /* Text */
+  --color-fg: #f2f2f8;
+  --color-muted: #8b8ba3;
+  --color-faint: #5c5c75;
+
+  /* Typography */
+  --font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+
+  --radius-card: 10px;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+/* Light theme overrides — token swap only (2026 token architecture) */
+[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #f3f4fb;
+  --color-bg-soft: #ffffff;
+  --color-card: #ffffff;
+  --color-card-hover: #eef0fb;
+  --color-border: #d8daee;
+  --color-border-soft: #e7e8f6;
+  --color-fg: #171728;
+  --color-muted: #565670;
+  --color-faint: #8f8fa6;
+  --color-accent-dim: rgba(124, 108, 255, 0.12);
+  --color-ok: #0f9d6a;
+  --color-warn: #b97a0a;
+  --color-err: #d64545;
+  --color-info: #2f6fd0;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+/* Paint the window canvas from the tokens (token-driven, so the theme switch
+   can never be shadowed by a stale hardcoded color). */
+html {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  overflow: hidden; /* app-shell manages its own scroll regions */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Bootstrap dark-mode alignment (we own the palette) */
+.card { background: var(--color-card); border-color: var(--color-border); color: var(--color-fg); }
+.modal-content { background: var(--color-card); border: 1px solid var(--color-border); color: var(--color-fg); }
+.form-control, .form-select {
+  background: var(--color-bg-soft); border-color: var(--color-border); color: var(--color-fg);
+}
+.form-control:focus, .form-select:focus {
+  background: var(--color-bg-soft); color: var(--color-fg);
+  border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-dim);
+}
+
+/* ---- Micro-interactions & polish (psychology: instant feedback) ---- */
+.ad-card {
+  background: linear-gradient(180deg, var(--color-card) 0%, var(--color-bg-soft) 100%);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.ad-card:hover {
+  border-color: var(--color-accent);
+  box-shadow: 0 8px 30px rgba(124, 108, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.glass {
+  background: rgba(20, 20, 31, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(124, 108, 255, 0.18);
+}
+/* Light theme: the same glass effect on white surfaces (otherwise the panel
+   stays dark while the rest of the shell turns light). */
+[data-theme='light'] .glass {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(124, 108, 255, 0.22);
+}
+
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Skeleton shimmer (perceived-speed) */
+@keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--color-card) 25%, var(--color-card-hover) 50%, var(--color-card) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+/* Goal-gradient progress bar */
+.ad-progress { height: 8px; border-radius: 99px; background: var(--color-border-soft); overflow: hidden; }
+.ad-progress > div {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-soft));
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 0 12px rgba(124, 108, 255, 0.45);
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Titlebar drag region */
+.drag { -webkit-app-region: drag; }
+.no-drag { -webkit-app-region: no-drag; }
+
+/* Pulsing live dot */
+@keyframes pulse-dot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.45; transform: scale(0.8); } }
+.live-dot { animation: pulse-dot 1.6s ease-in-out infinite; }
+
+/* Accessibility: honor the OS "reduce motion" preference (2026 a11y baseline).
+   Disables CSS transitions/animations for users who opt out of motion; the JS
+   side is covered by <MotionConfig reducedMotion="user"> in App.jsx. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visible keyboard focus ring (Fitts/keyboard accessibility) */
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

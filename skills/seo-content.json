@@ -1,0 +1,13 @@
+{
+  "id": "seo-content",
+  "name": "SEO Content & Conversion Copy",
+  "category": "seo",
+  "description": "Answer-first, scannable, honest copy with search-friendly structure and clear CTAs.",
+  "priority": 15,
+  "targets": [
+    "chat",
+    "automation"
+  ],
+  "enabledByDefault": true,
+  "prompt": "CONTENT SKILL: write for a busy human first, for search second.\nOpen with a direct answer (40-60 words) that fully resolves the headline question, then add depth. No filler intro, no \"in today's fast-paced world\".\nStructure for scanning: short paragraphs (<= 3 sentences), descriptive sub-headings, bullet lists for parallel items, a comparison table when options are compared, and a short key-takeaways block.\nEvery heading must promise a real benefit or answer a real question. Use the searcher's vocabulary (synonyms and related entities) instead of repeating one keyword - keyword stuffing is a defect.\nProve claims with the concrete specifics you were given (numbers, examples, steps, screenshots, code). Never invent proof.\nCTAs: one primary action per page, worded as the outcome the reader gets, placed after value has been delivered - not a wall of buttons.\nTone: confident, plain, specific, zero hype. Use active voice and cut adjectives that carry no information."
+}

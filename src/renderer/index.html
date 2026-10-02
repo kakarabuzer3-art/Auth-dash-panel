@@ -1,0 +1,535 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self';">
+    <title>AutoDash Control Panel</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <!-- Vendored (not CDN): the CSP at the top of this file is script-src 'self'
+         and the app must work offline. Files copied from node_modules/@xterm. -->
+    <link rel="stylesheet" href="vendor/xterm/xterm.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-robot logo-icon"></i><h2>AutoDash</h2>
+            </div>
+            <ul class="nav-links" id="sidebar-nav">
+                <li class="active" data-target="dashboard-view"><i class="fa-solid fa-gauge"></i> Dashboard</li>
+                <li data-target="schedule-view"><i class="fa-solid fa-clock"></i> Scheduler</li>
+                <li data-target="api-keys-view"><i class="fa-solid fa-key"></i> API Keys</li>
+                <li data-target="ai-chat-view"><i class="fa-solid fa-comments"></i> AI Chat</li>
+                <li data-target="ai-settings-view"><i class="fa-solid fa-brain"></i> AI Settings</li>
+                <li data-target="prompts-view"><i class="fa-solid fa-file-lines"></i> Prompts</li>
+                <li data-target="vscode-view"><i class="fa-solid fa-code"></i> VS Code</li>
+                <li data-target="logs-view"><i class="fa-solid fa-terminal"></i> Logs</li>
+                <li data-target="settings-view"><i class="fa-solid fa-gear"></i> Settings</li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="topbar">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-dot" id="connDot"></span>
+                    <span id="connText">Checking...</span>
+                </div>
+                <div class="time-widget" id="currentTime">00:00:00</div>
+                <div class="live-credits-topbar">
+                    <span id="topTokens">0 tok</span>
+                    <span id="topCost">$0.00</span>
+                </div>
+                <div class="status-widget">
+                    <span>Next Run: <strong id="nextRunTime">Not Scheduled</strong></span>
+                    <button id="btnTheme" class="btn btn-secondary" title="Toggle dark/light theme"><i class="fa-solid fa-moon"></i></button>
+                    <button id="btnForceRun" class="btn btn-primary"><i class="fa-solid fa-play"></i> Force Run Now</button>
+                    <button id="btnStop" class="btn btn-danger"><i class="fa-solid fa-stop"></i> Stop</button>
+                    <button id="btnPause" class="btn btn-warning hidden">Pause</button>
+                    <button id="btnResume" class="btn btn-success hidden">Resume</button>
+                </div>
+            </header>
+
+            <!-- Workflow progress bar (driven by automation:status {step,total}) -->
+            <div id="workflowProgressWrap" class="progress-wrap hidden">
+                <div id="workflowProgressBar" class="progress-bar" style="width:0%"></div>
+                <span id="workflowProgressText" class="progress-text"></span>
+            </div>
+
+            <!-- 1. Dashboard View -->
+            <section id="dashboard-view" class="view-section active">
+                <h2>Dashboard Overview</h2>
+                <div class="card-grid" style="margin-top: 15px;">
+                    <div class="card">
+                        <h3>System Status</h3>
+                        <p class="stat-number text-success" id="sysStatus">Ready</p>
+                    </div>
+                    <div class="card">
+                        <h3>API Calls Today</h3>
+                        <p class="stat-number" id="statApi">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>Today's API Cost</h3>
+                        <p class="stat-number" id="costToday">$0.00</p>
+                        <small id="costTokens">0 tokens</small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Scheduler View -->
+            <section id="schedule-view" class="view-section hidden">
+                <div class="card">
+                    <h2><i class="fa-solid fa-clock"></i> Schedule Configuration</h2>
+                    <div class="form-group mt-3">
+                        <label>Enable Master Scheduler</label>
+                        <input type="checkbox" id="schedEnabled">
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Daily Run Time (24H)</label>
+                        <input type="time" id="schedTime" value="19:00">
+                    </div>
+                    <button class="btn btn-primary mt-3" id="saveScheduler"><span class="btn_text">Save Schedule</span><span class="loading-spinner"></span></button>
+                </div>
+            </section>
+
+            <!-- 3. API Keys View -->
+            <section id="api-keys-view" class="view-section hidden">
+                <div class="card">
+                    <h2><i class="fa-solid fa-key"></i> API Key Management</h2>
+                    <p class="text-muted" style="margin-bottom: 15px;">Keys are encrypted locally via AES-256.</p>
+                    
+                    <div class="form-group mt-3">
+                        <label>Google Gemini API Key</label>
+                        <div class="input-group">
+                            <input type="password" id="geminiKey" placeholder="AQ.Ab8... or AIzaSy...">
+                            <button class="btn btn-secondary toggle-pwd" data-target="geminiKey"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-secondary btn-test" id="testGemini" data-provider="gemini" data-key="geminiKey"><i class="fa-solid fa-plug"></i> Test</button>
+                            <button class="btn btn-secondary btn-fetch-models" id="fetchModelsGemini" data-provider="gemini" data-select="modelGemini"><i class="fa-solid fa-cloud-arrow-down"></i> Fetch Models</button>
+                        </div>
+                        <p class="provider-hint" id="hintGemini"></p>
+                        <p class="provider-hint" id="modelHintGemini"></p>
+                        <label style="margin-top: 10px;">Additional Gemini Keys (one per line â€” rotates automatically on 429)</label>
+                        <textarea id="geminiExtraKeys" rows="3" placeholder="AIzaSy...&#10;AIzaSy..." style="width: 100%; padding: 10px; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border); border-radius: 4px;"></textarea>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Groq API Key</label>
+                        <div class="input-group">
+                            <input type="password" id="groqKey" placeholder="gsk_...">
+                            <button class="btn btn-secondary toggle-pwd" data-target="groqKey"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-secondary btn-test" id="testGroq" data-provider="groq" data-key="groqKey"><i class="fa-solid fa-plug"></i> Test</button>
+                            <button class="btn btn-secondary btn-fetch-models" id="fetchModelsGroq" data-provider="groq" data-select="modelGroq"><i class="fa-solid fa-cloud-arrow-down"></i> Fetch Models</button>
+                        </div>
+                        <p class="provider-hint" id="hintGroq"></p>
+                        <p class="provider-hint" id="modelHintGroq"></p>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Moonshot Kimi API Key</label>
+                        <div class="input-group">
+                            <input type="password" id="kimiKey" placeholder="sk-...">
+                            <button class="btn btn-secondary toggle-pwd" data-target="kimiKey"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-secondary btn-test" id="testKimi" data-provider="kimi" data-key="kimiKey"><i class="fa-solid fa-plug"></i> Test</button>
+                            <button class="btn btn-secondary btn-fetch-models" id="fetchModelsKimi" data-provider="kimi" data-select="modelKimi"><i class="fa-solid fa-cloud-arrow-down"></i> Fetch Models</button>
+                        </div>
+                        <p class="provider-hint" id="hintKimi"></p>
+                        <p class="provider-hint" id="modelHintKimi"></p>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>OpenRouter API Key</label>
+                        <div class="input-group">
+                            <input type="password" id="openrouterKey" placeholder="sk-or-...">
+                            <button class="btn btn-secondary toggle-pwd" data-target="openrouterKey"><i class="fa-solid fa-eye"></i></button>
+                            <button class="btn btn-secondary btn-test" id="testOpenRouter" data-provider="openrouter" data-key="openrouterKey"><i class="fa-solid fa-plug"></i> Test</button>
+                            <button class="btn btn-secondary btn-fetch-models" id="fetchModelsOpenRouter" data-provider="openrouter" data-select="modelOpenRouter"><i class="fa-solid fa-cloud-arrow-down"></i> Fetch Models</button>
+                        </div>
+                        <p class="provider-hint" id="hintOpenRouter"></p>
+                        <p class="provider-hint" id="modelHintOpenRouter"></p>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" id="saveApiKeys"><span class="btn_text">Save Encrypted Keys</span><span class="loading-spinner"></span></button>
+                </div>
+                        </section>
+
+            <!-- AI Chat View -->
+            <section id="ai-chat-view" class="view-section hidden">
+                <div class="chat-container">
+                    <!-- Header with live controls -->
+                    <div class="chat-header">
+                        <div class="chat-provider-selector">
+                            <label>Provider:</label>
+                            <select id="chatProvider">
+                                <option value="gemini">Gemini</option>
+                                <option value="groq">Groq</option>
+                                <option value="kimi">Kimi</option>
+                                <option value="openrouter">OpenRouter</option>
+                            </select>
+                        </div>
+                        <div class="chat-model-selector">
+                            <label>Model:</label>
+                            <select id="chatModel"></select>
+                        </div>
+                        <div class="chat-thinking-selector">
+                            <label>Thinking:</label>
+                            <select id="chatThinking">
+                                <option value="low">Fast</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">Deep</option>
+                            </select>
+                        </div>
+                        <div class="chat-stats-live">
+                            <span id="chatTokensLive">0 tokens</span>
+                            <span id="chatCostLive">$0.00</span>
+                            <span id="chatLatencyLive">0ms</span>
+                        </div>
+                        <button id="chatClearBtn" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash"></i> Clear
+                        </button>
+                    </div>
+
+                    <!-- Chat messages -->
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-welcome">
+                            <i class="fa-solid fa-robot"></i>
+                            <h3>Live AI Chat</h3>
+                            <p>Test any model, thinking level, and see tokens/cost in real time.</p>
+                        </div>
+                    </div>
+
+                    <!-- Input area -->
+                    <div class="chat-input-area">
+                        <textarea id="chatInput" placeholder="Type your message... (Shift+Enter for new line)"></textarea>
+                        <button id="chatSendBtn" class="btn btn-primary">
+                            <i class="fa-solid fa-paper-plane"></i> Send
+                        </button>
+                        <button id="chatStopBtn" class="btn btn-danger" style="display:none;">
+                            <i class="fa-solid fa-stop"></i> Stop
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3b. AI Settings View -->
+            <section id="ai-settings-view" class="view-section hidden">
+                <div class="card" id="liveStatusCard">
+                    <h3><i class="fa-solid fa-heart-pulse"></i> Live Status</h3>
+                    <div class="live-stats-grid">
+                        <div class="live-stat">
+                            <label>Tokens Today</label>
+                            <span id="liveTokensToday">0</span>
+                        </div>
+                        <div class="live-stat">
+                            <label>Cost Today</label>
+                            <span id="liveCostToday">$0.00</span>
+                        </div>
+                        <div class="live-stat">
+                            <label>Requests Today</label>
+                            <span id="liveRequestsToday">0</span>
+                        </div>
+                        <div class="live-stat">
+                            <label>Last Provider</label>
+                            <span id="liveLastProvider">—</span>
+                        </div>
+                        <div class="live-stat">
+                            <label>Avg Latency</label>
+                            <span id="liveAvgLatency">—</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fa-solid fa-brain"></i> Advanced AI Configuration</h2>
+
+                    <h3 style="margin-top: 15px;">Models per provider</h3>
+                    <div class="form-group mt-3">
+                        <label>Gemini model</label>
+                        <select id="modelGemini" class="model-dropdown"></select>
+                    </div>
+                    <div id="thinkingGroup" class="thinking-selector mt-3">
+                        <label style="display: block; margin-bottom: 6px;">Thinking level (Gemini only)</label>
+                        <label style="margin-right: 15px;"><input type="radio" name="thinkingLevel" value="low"> Low (fastest, cheapest)</label>
+                        <label style="margin-right: 15px;"><input type="radio" name="thinkingLevel" value="medium" checked> Medium (balanced)</label>
+                        <label><input type="radio" name="thinkingLevel" value="high"> High (most intelligent)</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Groq model</label>
+                        <select id="modelGroq" class="model-dropdown"></select>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>Kimi model</label>
+                        <select id="modelKimi" class="model-dropdown"></select>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label>OpenRouter model</label>
+                        <select id="modelOpenRouter" class="model-dropdown"></select>
+                    </div>
+
+                    <h3 style="margin-top: 20px;">Routing strategy</h3>
+                    <div class="form-group mt-3">
+                        <select id="routingStrategy" class="model-dropdown">
+                            <option value="priority">Priority â€” try providers in priority order</option>
+                            <option value="cost-optimized">Cost-Optimized â€” cheapest provider first</option>
+                            <option value="latency-optimized">Latency-Optimized â€” fastest provider first</option>
+                            <option value="round-robin">Round-Robin â€” rotate providers evenly</option>
+                        </select>
+                    </div>
+
+                    <h3 style="margin-top: 20px;">Provider priority (drag to reorder)</h3>
+                    <div id="priorityList" class="priority-list"></div>
+                    <p id="activeChain" class="provider-hint"></p>
+
+                    <h3 style="margin-top: 20px;">Generation limits (per provider)</h3>
+                    <div id="sliderContainer" class="slider-container"></div>
+
+                    <div class="form-group">
+                        <label>System Prompt (injected into every AI request)</label>
+                        <textarea id="systemPromptInput" rows="4" placeholder="You are an expert full-stack developer..." style="width: 100%; padding: 10px; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border); border-radius: 4px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="designStyleSelect">Design Style</label>
+                        <select id="designStyleSelect">
+                            <option value="auto">Auto (AI chooses)</option>
+                            <option value="glassmorphism">Glassmorphism</option>
+                            <option value="neumorphism">Neumorphism</option>
+                            <option value="cyberpunk">Cyberpunk Neon</option>
+                            <option value="minimal">Minimal Editorial</option>
+                            <option value="material3">Material Design 3</option>
+                            <option value="neubrutalism">Neubrutalism</option>
+                        </select>
+                        <small>Applied to every AI-generated dashboard.</small>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" id="saveAiSettings" style="margin-top: 20px;"><span class="btn_text"><i class="fa-solid fa-floppy-disk"></i> Save AI Settings</span><span class="loading-spinner"></span></button>
+                </div>
+            </section>
+
+            <!-- 4. Prompts View (folder-based, ordered, multi-language) -->
+            <section id="prompts-view" class="view-section hidden">
+                <div class="card">
+                    <h2><i class="fa-solid fa-file-lines"></i> Prompts Manager</h2>
+                    <p class="text-muted" style="margin-bottom: 15px;">
+                        Ordered multi-language prompts. <strong>frontend/</strong> runs first (Phase 1), then <strong>backend/</strong> (Phase 2).
+                        Files are numbered 01_, 02_ ... and executed in that order. Files starting with "_" and empty files are ignored.
+                        Any language is supported (English / Urdu / Arabic / ...) â€” content is sent to the AI verbatim.
+                    </p>
+
+                    <div class="prompt-tabs" id="promptTabs">
+                        <button class="prompt-tab active" data-folder="frontend"><i class="fa-solid fa-window-maximize"></i> Frontend (Phase 1)</button>
+                        <button class="prompt-tab" data-folder="backend"><i class="fa-solid fa-database"></i> Backend (Phase 2)</button>
+                    </div>
+
+                    <div class="input-group mt-3">
+                        <button class="btn btn-primary" id="btnAddPrompt"><i class="fa-solid fa-plus"></i> Add Prompt</button>
+                        <button class="btn btn-secondary" id="btnRefreshPrompts"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                        <button class="btn btn-secondary" id="btnOpenPromptFolder"><i class="fa-solid fa-folder-open"></i> Open in Explorer</button>
+                    </div>
+
+                    <p class="text-muted" id="promptFolderStatus" style="margin-top: 10px;">Loading prompts...</p>
+                    <p class="prompts-status" style="margin-top: 6px;">
+                        <span id="frontendCount">0</span> frontend Â· <span id="backendCount">0</span> backend Â· <span id="promptsDir">Loading...</span>
+                    </p>
+                    <div id="promptList" class="prompt-list mt-3"></div>
+
+                    <!-- Inline editor (hidden until Add/Edit is clicked) -->
+                    <div id="promptEditor" class="prompt-editor hidden">
+                        <h3 id="promptEditorTitle">New Prompt</h3>
+                        <div class="form-group mt-3">
+                            <label>File name (number prefix is added automatically)</label>
+                            <div class="input-group">
+                                <input type="text" id="promptEditorName" placeholder="e.g. dashboard_layout">
+                                <span class="prompt-lang-badge" id="promptEditorLang"></span>
+                            </div>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label>Prompt content (any language)</label>
+                            <textarea id="promptEditorContent" rows="8" placeholder="Describe what the AI should generate..."></textarea>
+                        </div>
+                        <div class="input-group mt-3">
+                            <button class="btn btn-primary" id="btnSavePrompt"><i class="fa-solid fa-floppy-disk"></i> Save Prompt</button>
+                            <button class="btn btn-secondary" id="btnCancelPrompt">Cancel</button>
+                        </div>
+                    </div>
+
+                    <h3 class="mt-3" style="margin-top: 24px;"><i class="fa-solid fa-folder-tree"></i> Generated Dashboard (file tree)</h3>
+                    <div class="input-group mt-3">
+                        <button class="btn btn-secondary" id="btnRefreshFileTree"><i class="fa-solid fa-rotate"></i> Refresh Tree</button>
+                    </div>
+                    <div class="file-tree" id="fileTree"><!-- Populated by app.js --></div>
+
+                    <h3 class="mt-3" style="margin-top: 24px;"><i class="fa-solid fa-clock-rotate-left"></i> Legacy prompts.txt (fallback)</h3>
+                    <div class="form-group mt-3">
+                        <label>Prompt File Path (.txt) â€” only used when both folders are empty</label>
+                        <div class="input-group">
+                            <input type="text" id="promptFilePath" placeholder="C:/Users/Desktop/prompts.txt">
+                            <button class="btn btn-secondary" id="browsePromptFile">Browse</button>
+                        </div>
+                    </div>
+                    <div class="input-group mt-3">
+                        <button class="btn btn-secondary" id="saveFileConfig"><span class="btn_text">Save Path</span><span class="loading-spinner"></span></button>
+                        <button class="btn btn-secondary" id="loadPromptsPreview"><i class="fa-solid fa-rotate"></i> Load Preview</button>
+                        <button class="btn btn-secondary" id="clearPromptsPreview"><i class="fa-solid fa-eraser"></i> Clear</button>
+                    </div>
+                    <p class="text-muted" id="promptsStatus" style="margin-top: 10px;">No file loaded yet.</p>
+                    <div id="promptsPreview" style="margin-top: 10px;"></div>
+                </div>
+            </section>
+
+            <!-- 5. VS Code / AI Extension View -->
+            <section id="vscode-view" class="view-section hidden">
+                <div class="card">
+                    <h2><i class="fa-solid fa-code"></i> IDE Automation Setup</h2>
+                    
+                    <div class="form-group mt-3">
+                        <label>Target AI Extension</label>
+                        <select id="aiExtensionSelect" style="width: 100%; padding: 10px; margin-top: 5px;">
+                            <option value="cline">Cline (saoudrizwan.claude-dev)</option>
+                            <option value="continue">Continue (Continue.continue)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Wait Between Prompts (Seconds)</label>
+                        <input type="number" id="promptWaitTime" value="30">
+                    </div>
+
+                    <button class="btn btn-primary mt-3" id="saveVsCodeConfig"><span class="btn_text">Save IDE Settings</span><span class="loading-spinner"></span></button>
+                </div>
+            </section>
+
+            <!-- 6. Logs View: Terminal | Error Center | Guide -->
+            <section id="logs-view" class="view-section hidden">
+                <div class="logs-tabs" role="tablist">
+                    <button class="logs-tab active" data-logs-tab="terminal" role="tab"><i class="fa-solid fa-terminal"></i> Terminal</button>
+                    <button class="logs-tab" data-logs-tab="errors" role="tab"><i class="fa-solid fa-triangle-exclamation"></i> Error Center <span id="errorsBadge" class="logs-badge hidden">0</span></button>
+                    <button class="logs-tab" data-logs-tab="guide" role="tab"><i class="fa-solid fa-book"></i> Guide</button>
+                </div>
+
+                <!-- TAB 1: live terminal (xterm.js vendored; DOM fallback below) -->
+                <div class="logs-panel" id="logs-panel-terminal">
+                    <div class="panel-toolbar">
+                        <input type="text" id="logFilter" placeholder="Search logs by text...">
+                        <select id="logLevelFilter">
+                            <option value="all">All Levels</option>
+                            <option value="info">Info</option>
+                            <option value="warn">Warn</option>
+                            <option value="error">Error</option>
+                        </select>
+                        <button class="btn btn-secondary" id="terminalCopy"><i class="fa-solid fa-copy"></i> Copy</button>
+                        <button class="btn btn-secondary" id="terminalDownload"><i class="fa-solid fa-download"></i> Download</button>
+                        <button class="btn btn-secondary" id="clearLogs"><i class="fa-solid fa-trash"></i> Clear</button>
+                        <span id="terminalStatus" class="logs-status"></span>
+                    </div>
+                    <div id="xtermContainer" class="xterm-container"></div>
+                    <!-- DOM terminal: used when xterm.js fails to load (graceful fallback) -->
+                    <div id="logTerminal" class="log-fallback hidden"></div>
+                </div>
+
+                <!-- TAB 2: error center (runs/errors.json) -->
+                <div class="logs-panel hidden" id="logs-panel-errors">
+                    <div class="panel-toolbar">
+                        <select id="errorFilter">
+                            <option value="all">All errors</option>
+                            <option value="unresolved">Unresolved only</option>
+                            <option value="resolved">Resolved only</option>
+                        </select>
+                        <select id="errorProviderFilter">
+                            <option value="all">All providers</option>
+                            <option value="gemini">Gemini</option>
+                            <option value="groq">Groq</option>
+                            <option value="kimi">Kimi</option>
+                            <option value="openrouter">OpenRouter</option>
+                        </select>
+                        <select id="errorSourceFilter">
+                            <option value="all">All sources</option>
+                            <option value="app">App (JS)</option>
+                            <option value="chromium">Chromium</option>
+                            <option value="system">System / Electron</option>
+                        </select>
+                        <button class="btn btn-secondary" id="errorsRefresh"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                        <button class="btn btn-secondary" id="errorsExport"><i class="fa-solid fa-file-export"></i> Export JSON</button>
+                        <button class="btn btn-secondary" id="errorsExportCsv"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                        <button class="btn btn-secondary" id="errorsClear"><i class="fa-solid fa-trash"></i> Clear All</button>
+                    </div>
+                    <div class="errors-table-wrap">
+                        <table id="errorsTable" class="errors-table">
+                            <thead>
+                                <tr>
+                                    <th></th><th>Time</th><th>Code</th><th>Provider</th><th>Source</th>
+                                    <th>Message</th><th>Cause</th><th>Action</th><th></th>
+                                </tr>
+                            </thead>
+                            <tbody><!-- rows injected by app.js --></tbody>
+                        </table>
+                    </div>
+                    <p id="errorsEmpty" class="logs-empty">No errors recorded yet. The Error Center fills itself whenever a provider call or a workflow step fails.</p>
+                </div>
+
+                <!-- TAB 3: guide (rendered from ERROR_CODES via the errors:catalog IPC) -->
+                <div class="logs-panel hidden" id="logs-panel-guide">
+                    <div id="guideContent" class="guide-content"><!-- rendered by app.js --></div>
+                </div>
+            </section>
+
+            <!-- 7. Settings View -->
+            <section id="settings-view" class="view-section hidden">
+                <div class="card">
+                    <h2><i class="fa-solid fa-gear"></i> General Settings</h2>
+                    
+                    <div class="form-group mt-3">
+                        <label>Global Fallback AI Model for Structure Generation</label>
+                        <select id="activeModelSelect" style="width: 100%; padding: 10px; margin-top: 5px;">
+                            <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+                            <option value="gemini-3.6-flash">Gemini 3.6 Flash</option>
+                            <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash Lite</option>
+                        </select>
+                        <p class="provider-hint">Per-provider model selection now lives in the AI Settings view.</p>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Project Output Directory</label>
+                        <input type="text" id="outputDir" placeholder="~/Desktop/Dashboard">
+                    </div>
+
+                    <h3 style="margin-top: 20px;"><i class="fa-solid fa-bell-slash"></i> Background & Notifications</h3>
+                    <div class="form-group mt-3">
+                        <label><input type="checkbox" id="appSilentNotifications"> Silent notifications (tray-only, no sound)</label>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label><input type="checkbox" id="appCloseToTray"> Close to tray (hide instead of quitting)</label>
+                    </div>
+
+                    <button class="btn btn-primary mt-3" id="saveSettingsConfig">Save Settings</button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <!-- Command palette overlay (Ctrl+K / Escape) -->
+    <div id="commandPalette" class="command-palette" style="display:none;">
+        <input type="text" id="commandInput" placeholder="Type a command..." />
+        <div id="commandList" class="command-list"></div>
+    </div>
+
+    <!-- File preview modal (file tree viewer) -->
+    <div id="filePreviewModal" class="file-preview-modal" style="display:none;">
+        <div class="file-preview-card">
+            <div class="file-preview-header">
+                <strong id="filePreviewTitle">file</strong>
+                <button class="btn btn-secondary" id="btnCloseFilePreview">Close</button>
+            </div>
+            <pre id="filePreviewContent"></pre>
+        </div>
+    </div>
+    <script src="vendor/xterm/xterm.js"></script>
+    <script src="vendor/xterm/addon-fit.js"></script>
+    <script src="vendor/xterm/addon-search.js"></script>
+    <script src="vendor/xterm/addon-serialize.js"></script>
+    <script src="js/app.js"></script>
+    <div id="toastContainer"></div>
+
+</body>
+</html>

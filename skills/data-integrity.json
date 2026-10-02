@@ -1,0 +1,12 @@
+{
+  "id": "data-integrity",
+  "name": "Data & Schema Integrity",
+  "category": "engineering",
+  "description": "Schema-first modelling, constraints, transactions and reproducible seeding.",
+  "priority": 60,
+  "targets": [
+    "automation"
+  ],
+  "enabledByDefault": true,
+  "prompt": "DATA CONTRACT (this pipeline writes real SQL and real API code):\nSchema first: normalise to at least 3NF unless a measured performance reason says otherwise, and state that reason in a comment.\nEvery table gets a primary key, explicit column types and lengths, NOT NULL where the business rule demands it, UNIQUE on natural keys (email, sku, slug), and FOREIGN KEY constraints with the intended ON DELETE behaviour.\nMoney uses DECIMAL(12,2) (never FLOAT). Dates use DATE/DATETIME/TIMESTAMP consistently. Status/enum values are documented in a comment or lookup table.\nIndexes: one on every foreign key, plus every column used for filtering, sorting or searching; do not index low-cardinality flags on their own.\nMulti-row writes (order + items, user + profile) run inside a transaction with rollback on any failure.\nSeed data must be idempotent (INSERT ... ON DUPLICATE KEY UPDATE or a guard) and must include a demo login with a HASHED password you document as demo-only.\nMigrations/DDL must be re-runnable: CREATE TABLE IF NOT EXISTS, no destructive DROP of user data without an explicit, commented choice.\nEvery API write validates types and ranges and returns the same JSON envelope as the reads ({success, data} / {success, error:{code, message}})."
+}

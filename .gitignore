@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+jspm_packages/
+web_modules/
+
+# Build output / caches
+build/
+dist/
+out/
+.cache/
+.vite/
+.parcel-cache/
+*.tsbuildinfo
+
+# Electron packaging artifacts
+*.exe
+*.dmg
+*.AppImage
+*.blockmap
+*.yml
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Runtime / test artifacts
+*.txt
+!*.txt.example
+coverage/
+.nyc_output/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Cline agent data
+.clinerules/
+runs/

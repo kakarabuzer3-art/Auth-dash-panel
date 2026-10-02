@@ -1,0 +1,13 @@
+{
+  "id": "accessibility",
+  "name": "WCAG 2.2 AA Accessibility",
+  "category": "quality",
+  "description": "Keyboard-operable, screen-reader-friendly, contrast-safe UI on every generated surface.",
+  "priority": 45,
+  "targets": [
+    "chat",
+    "automation"
+  ],
+  "enabledByDefault": true,
+  "prompt": "ACCESSIBILITY CONTRACT (WCAG 2.2 AA):\nEvery interactive control is reachable and operable by keyboard, in a logical order, with a visible focus indicator (never outline: none without a replacement).\nEvery input has a real <label> (or aria-label when visually hidden), and errors are announced as text next to the field - colour alone must never carry meaning.\nBody text contrast >= 4.5:1, large text and UI borders >= 3:1, and no text baked into images.\nUse semantic landmarks (header/nav/main/section/footer), one H1 per page, and heading levels that never skip.\nMeaningful alt text for informative images, alt=\"\" for decorative ones, and <caption> for data tables.\nDialogs trap focus, close with Escape, and restore focus to the trigger; toasts/status messages live in an aria-live region.\nHonour prefers-reduced-motion for animation-heavy UI and keep touch targets >= 44x44px."
+}
